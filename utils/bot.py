@@ -3,7 +3,6 @@
 import requests
 import json
 from faker import Faker
-# from .bot import config
 from bot import config
 
 FAKE_USERS = []
@@ -51,17 +50,17 @@ def user_logout(token):
 
 def user_jwt_login(f_username, f_password):
     res = {}
-#     data = json.dumps({
-#                'username': f_username,
-#                'password': f_password,
-#            },)
-#     r = requests.post(url=r'http://127.0.0.1:8000/api/token//',
-#                       data=data,
-#                       headers={
-#                           'content-type': 'application/json',
-#                       },
-#                       )
-#     res['token'] = json.loads(r.content)['token']
+    data = json.dumps({
+               'username': f_username,
+               'password': f_password,
+           },)
+    r = requests.post(url=config.ENTER_POINT + r'token/',
+                      data=data,
+                      headers={
+                          'content-type': 'application/json',
+                      },
+                      )
+    res['tokens'] = json.loads(r.content)
     return res
 
 
@@ -83,28 +82,22 @@ def user_login(f_username, f_email, f_password):
     return res
 
 
-def add_post(f_username, f_email, f_password, title, content):
+def add_post(f_username, f_password, title, content):
     res = {}
-    # token1 = user_jwt_login(f_username, f_password)
-    # token = user_login(f_username, f_email, f_password)
-    # data = json.dumps({
-    #     # 'username': f_username,
-    #     # 'password': f_password,
-    #     'title': title,
-    #     'content': content,
-    #     'token': token1,
-    # })
-    # r = requests.post(url=config.ENTER_POINT + r'api/add_post/',
-    #                   data=data,
-    #                   headers={
-    #                       'content-type': 'application/json',
-    #                        'Authorization': 'JWT %s' % (token1,),
-    #                        # 'Authorization': '%s' % (token['token'],),
-    #                        # 'Authorization': 'JWT %s' % (token, ),
-    #                   },
-    #                   )
+    token = user_jwt_login(f_username, f_password)
+    data = json.dumps({
+        'title': title,
+        'content': content,
+    })
+    r = requests.post(url=config.ENTER_POINT + r'add_post/',
+                      data=data,
+                      headers={
+                          'content-type': 'application/json',
+                           'Authorization': 'Bearer %s' % (token['tokens']['access'],),
+                      },
+                      )
     # user_logout(token)
-    # res['add_post'] = r.text
+    res['add_post'] = r.text
     return res
 
 
@@ -137,15 +130,15 @@ def main():
     for i in range(config.NUMBER_OF_USERS):
         f = fake_user()
         f['add_user'] = add_user(f)
-        # f['add_posts'] = []
-        # for p in f['fake_posts']:
-        #     f['add_posts'].append(add_post(
-        #         f_username=f['username'],
-        #         f_email=f['email'],
-        #         f_password=f['password'],
-        #         title=p['title'],
-        #         content=p['content'],
-        #     ))
+        f['add_posts'] = []
+        for p in f['fake_posts']:
+            ap = add_post(
+                f_username=f['username'],
+                f_password=f['password'],
+                title=p['title'],
+                content=p['content'],
+            )
+            f['add_posts'].append(ap)
         FAKE_USERS.append(f)
     return {
         'FAKE_USERS': FAKE_USERS,

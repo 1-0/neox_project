@@ -48,29 +48,6 @@
             </div>
         {% endblock %}
         {% block content %}
-            <h1>
-                <a href="{% url 'home' %}">
-                    Neox
-                </a>
-            </h1>
-            <h2>Links: </h2>
-            <ul>
-                <li>
-                    <a href="{% url 'admin:index' %}">
-                        Admin panel "{% url 'admin:index' %}"
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'admin:password_change' %}">
-                        Admin password change "{% url 'admin:password_change' %}"
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'admin:logout' %}">
-                        Admin logout "{% url 'admin:logout' %}"
-                    </a>
-                </li>
-            </ul>
         {% endblock %}
     </body>
 </html>

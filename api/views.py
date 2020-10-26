@@ -4,10 +4,22 @@ import datetime
 from post import models
 from . import serializers
 from rest_framework.views import APIView
-from rest_framework import renderers, parsers
+from rest_framework import renderers, parsers, viewsets, authentication, permissions
 from rest_framework.response import Response
-from rest_framework import authentication, permissions
+from rest_framework.decorators import action
 from neox_project.models import CustomUser
+
+
+###########################################################################################################
+from django.conf.urls import url
+from rest_framework_swagger.views import get_swagger_view
+
+schema_view = get_swagger_view(title='SWAGGER API')
+
+urlpatterns = [
+    url(r'^$', schema_view)
+]
+###########################################################################################################
 
 
 class PostsList(APIView):
@@ -25,6 +37,29 @@ class DetailPost(generics.RetrieveUpdateDestroyAPIView):
     queryset = models.Post.objects.all()
     serializer_class = serializers.PostSerializer
     permission_classes = [permissions.IsAuthenticated, ]
+
+
+class PostViewSet(APIView):
+    # authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated, ]
+    # renderer_classes = (renderers.JSONRenderer,)
+
+    def get(self, request, format=None):
+        posts = [{'id': p.id, 'title': p.title, 'content': p.content} for p in models.Post.objects.all()]
+        return Response(posts)
+
+    @action(detail=True, methods=['post'])
+    def post(self, request, pk=None):
+
+        poster = CustomUser.objects.get(pk=request.user.id)
+        p = models.Post(
+            title=request.data['title'],
+            content=request.data['content'],
+            user=poster,
+        )
+        p.save()
+        # Post.objects.filter(pk=pk).update(voting=F('voting') + 1)
+        return Response({'p': str(p)})
 
 
 class RatingList(generics.ListCreateAPIView):
