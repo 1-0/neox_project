@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_auth.registration',
     # ~ 'django_extensions',
     # ~ 'api',
+    'api',
     'post',
     'neox_project',
 ]
