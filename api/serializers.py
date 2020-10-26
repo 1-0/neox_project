@@ -22,7 +22,7 @@ class PostSerializer(serializers.JWTSerializer):
         model = models.Post
 
 
-class RatingSerializer(serializers.JWTSerializer):
+class RatingSerializer(rf_serializers.Serializer):
     def create(self, validated_data):
         pass
 
@@ -35,7 +35,6 @@ class RatingSerializer(serializers.JWTSerializer):
             'like',
             'user',
             'post',
-            'pub_date',
         )
         model = models.Rating
 

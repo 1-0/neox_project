@@ -45,10 +45,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'rest_framework.authtoken',
-    'rest_auth',
     'rest_auth.registration',
+    'rest_auth',
     # ~ 'django_extensions',
-    # ~ 'api',
     'api',
     'post',
     'neox_project',
@@ -122,7 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': (

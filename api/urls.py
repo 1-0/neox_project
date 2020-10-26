@@ -20,3 +20,16 @@ urlpatterns = [
     path('rest-auth/', include('rest_auth.urls')),
     path('registration/', include('rest_auth.registration.urls')),
 ]
+
+# api/ registration/ ^$ [name='rest_register']
+# api/ registration/ ^verify-email/$ [name='rest_verify_email']
+# api/ registration/ ^account-confirm-email/(?P<key>[-:\w]+)/$ [name='account_confirm_email']
+
+# api/ rest-auth/ ^password/reset/$ [name='rest_password_reset']
+# api/ rest-auth/ ^password/reset/confirm/$ [name='rest_password_reset_confirm']
+# api/ rest-auth/ ^login/$ [name='rest_login']
+# api/ rest-auth/ ^logout/$ [name='rest_logout']
+# api/ rest-auth/ ^user/$ [name='rest_user_details']
+# api/ rest-auth/ ^password/change/$ [name='rest_password_change']
+
+
