@@ -28,18 +28,18 @@ SECRET_KEY = 'n4*f-_d)eujdqev7*cd@(&gg9e&g)g-j-1golfhslwuu_veo5^'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+SITE_ID = 1
 
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'rest_framework',
     'allauth',
     'allauth.account',
@@ -51,7 +51,9 @@ INSTALLED_APPS = [
     # ~ 'api',
     'neox_project',
 ]
-
+AUTH_USER_MODEL = 'neox_project.CustomUser'
+# ~ LOGIN_REDIRECT_URL = 'home'
+# ~ LOGOUT_REDIRECT_URL = 'home'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
