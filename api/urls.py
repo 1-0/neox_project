@@ -15,7 +15,6 @@ urlpatterns = [
     path('post/<int:pk>/', views.DetailPost.as_view(), name="post"),
     path('ratings/', views.RatingList.as_view(), name="rating_list"),
     path('rating/<int:pk>/', views.DetailRating.as_view(), name="rating"),
-    path('user', views.UserViewSet.as_view(), name="user"),
     path('analitics/', views.RatingCount.as_view(), name="rating_count"),
     path('analitics/<int:pk>/', views.DetailRating.as_view(), name="rating_detail"),
     path('rest-auth/', include('rest_auth.urls')),
