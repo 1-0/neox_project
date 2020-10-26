@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_auth.registration',
     # ~ 'django_extensions',
     # ~ 'api',
+    'post',
     'neox_project',
 ]
 AUTH_USER_MODEL = 'neox_project.CustomUser'
