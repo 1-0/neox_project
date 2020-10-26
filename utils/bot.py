@@ -3,6 +3,7 @@
 import requests
 import json
 from faker import Faker
+# from .bot import config
 from bot import config
 
 FAKE_USERS = []
@@ -38,7 +39,7 @@ def fake_user():
 
 def user_logout(token):
     data = json.dumps({
-        'token': token,
+        # 'token': token['key'],
     },)
     r = requests.post(url=config.ENTER_POINT + r'rest-auth/logout/',
                       data=data,
@@ -77,7 +78,8 @@ def user_login(f_username, f_email, f_password):
                           'content-type': 'application/json',
                       },
                       )
-    res['tokens'] = json.loads(str(r.content))
+    # res['tokens'] = json.loads(str(r.content))
+    res['login'] = r.content
     return res
 
 
@@ -118,7 +120,6 @@ def add_user(f):
         'email': f['email'],
         'password1': f['password'],
         'password2': f['password'],
-        'token': token,
     }, )
     r = requests.post(url=config.ENTER_POINT + r'registration/',
                       data=data,
