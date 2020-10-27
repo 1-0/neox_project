@@ -126,19 +126,24 @@ def add_user(f):
     return res
 
 
+def add_posts(faker):
+    posts = []
+    for p in faker['fake_posts']:
+        ap = add_post(
+            f_username=faker['username'],
+            f_password=faker['password'],
+            title=p['title'],
+            content=p['content'],
+        )
+        posts.append(ap)
+    return posts
+
+
 def main():
     for i in range(config.NUMBER_OF_USERS):
         f = fake_user()
         f['add_user'] = add_user(f)
-        f['add_posts'] = []
-        for p in f['fake_posts']:
-            ap = add_post(
-                f_username=f['username'],
-                f_password=f['password'],
-                title=p['title'],
-                content=p['content'],
-            )
-            f['add_posts'].append(ap)
+        f['add_data'] = [add_posts(faker=f),]
         FAKE_USERS.append(f)
     return {
         'FAKE_USERS': FAKE_USERS,
