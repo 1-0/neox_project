@@ -2,6 +2,7 @@
 
 import requests
 import json
+import io
 from faker import Faker
 from bot import config
 
@@ -29,23 +30,40 @@ def fake_user():
     return {
         'first_name': first_name,
         'last_name': last_name,
-        'username': '_'.join((first_name,last_name)),
+        'username': '_'.join((first_name, last_name)),
         'email': email,
         'password': password,
         'fake_posts': fake_posts,
     }
 
 
+def server_request(url, data, headers):
+    i = 0
+    res = None
+    while i < config.NUMBER_OF_CONNECTION_RETRY:
+        try:
+            res = requests.post(
+                url=url,
+                data=data,
+                headers=headers,
+            )
+            return res
+        except:
+            i += 1
+    return res
+
+
 def user_logout(token):
     data = json.dumps({
-        # 'token': token['key'],
+        'token': json.loads(token['login'])['key'],
     },)
-    r = requests.post(url=config.ENTER_POINT + r'rest-auth/logout/',
-                      data=data,
-                      headers={
-                          'content-type': 'application/json',
-                      },
-                      )
+    r = server_request(url=config.ENTER_POINT + r'rest-auth/logout/',
+                       data=data,
+                       headers={
+                           'content-type': 'application/json',
+                       },
+                       )
+    return r
 
 
 def user_jwt_login(f_username, f_password):
@@ -54,12 +72,12 @@ def user_jwt_login(f_username, f_password):
                'username': f_username,
                'password': f_password,
            },)
-    r = requests.post(url=config.ENTER_POINT + r'token/',
-                      data=data,
-                      headers={
-                          'content-type': 'application/json',
-                      },
-                      )
+    r = server_request(url=config.ENTER_POINT + r'token/',
+                       data=data,
+                       headers={
+                           'content-type': 'application/json',
+                       },
+                       )
     res['tokens'] = json.loads(r.content)
     return res
 
@@ -71,13 +89,12 @@ def user_login(f_username, f_email, f_password):
                'email': f_email,
                'password': f_password,
            },)
-    r = requests.post(url=config.ENTER_POINT + r'rest-auth/login/',
-                      data=data,
-                      headers={
-                          'content-type': 'application/json',
-                      },
-                      )
-    # res['tokens'] = json.loads(str(r.content))
+    r = server_request(url=config.ENTER_POINT + r'rest-auth/login/',
+                       data=data,
+                       headers={
+                           'content-type': 'application/json',
+                       },
+                       )
     res['login'] = r.content
     return res
 
@@ -89,13 +106,13 @@ def add_post(f_username, f_password, title, content):
         'title': title,
         'content': content,
     })
-    r = requests.post(url=config.ENTER_POINT + r'add_post/',
-                      data=data,
-                      headers={
-                          'content-type': 'application/json',
+    r = server_request(url=config.ENTER_POINT + r'add_post/',
+                       data=data,
+                       headers={
+                           'content-type': 'application/json',
                            'Authorization': 'Bearer %s' % (token['tokens']['access'],),
-                      },
-                      )
+                       },
+                       )
     # user_logout(token)
     res['add_post'] = r.text
     return res
@@ -114,12 +131,12 @@ def add_user(f):
         'password1': f['password'],
         'password2': f['password'],
     }, )
-    r = requests.post(url=config.ENTER_POINT + r'registration/',
-                      data=data,
-                      headers={
-                          'content-type': 'application/json',
-                      },
-                      )
+    r = server_request(url=config.ENTER_POINT + r'registration/',
+                       data=data,
+                       headers={
+                           'content-type': 'application/json',
+                       },
+                       )
 
     user_logout(token)
     res['r'] = r.text
@@ -143,14 +160,18 @@ def main():
     for i in range(config.NUMBER_OF_USERS):
         f = fake_user()
         f['add_user'] = add_user(f)
-        f['add_data'] = [add_posts(faker=f),]
+        f['add_data'] = [add_posts(faker=f), ]
         FAKE_USERS.append(f)
+    res = '''
+FAKE_USERS += ''' + str(FAKE_USERS)
+
+    with io.open('bot_log.py', 'a+', encoding="utf-8") as log:
+        log.write(res)
+
     return {
         'FAKE_USERS': FAKE_USERS,
     }
 
 
 if __name__ == "__main__":
-    print(main())
-
-
+    main()
