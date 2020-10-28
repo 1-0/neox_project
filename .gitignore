@@ -133,3 +133,6 @@ dmypy.json
 
 # Media
 media/
+
+# Bot log
+bot_log.py

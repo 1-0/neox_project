@@ -36,7 +36,7 @@ class DetailPost(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated, ]
 
 
-class PostDate(APIView):
+class PostData(APIView):
     permission_classes = [permissions.IsAuthenticated, ]
 
     @staticmethod
@@ -50,7 +50,7 @@ class PostDate(APIView):
         try:
             p = Post.objects.get(id=request.data['post_id'])
             p.title = request.data['title']
-            p.content=request.data['content'],
+            p.content=request.data['content']
         except (KeyError, Post.DoesNotExist):
             p = models.Post(
                 title=request.data['title'],
@@ -59,6 +59,37 @@ class PostDate(APIView):
         )
         p.save()
         return Response({'p': str(p)})
+
+
+class RatingData(APIView):
+    permission_classes = [permissions.IsAuthenticated, ]
+
+    @staticmethod
+    def get(self, request, format=None):
+        rating = [{'id': p.id, 'post_id': p.post_id, 'user_id': p.user_id, 'like': p.like} for p in models.Rating.objects.all()]
+        return Response(rating)
+
+    @action(detail=True, methods=['post'])
+    def post(self, request, pk=None):
+        user = CustomUser.objects.get(pk=request.user.id)
+        try:
+            r = Rating.objects.get(id=request.data['rating_id'])
+            r.post = Post.objects.get(id=request.data['post_id'])
+            r.user = user
+            r.like = True if request.data['like'] in ['true', 'True'] else False
+        except (KeyError, Rating.DoesNotExist):
+            try:
+                post = Post.objects.get(id=request.data['post_id'])
+                r = Rating.objects.get(user=user, post=post)
+                r.like = True if request.data['like'] in ['true', 'True'] else False
+            except (KeyError, Rating.DoesNotExist, Post.DoesNotExist):
+                r = models.Rating(
+                    post=Post.objects.get(id=request.data['post_id']),
+                    user=user,
+                    like=True if request.data['like'] in ['true', 'True'] else False,
+                )
+        r.save()
+        return Response({'r': str(r)})
 
 
 class RatingList(generics.ListCreateAPIView):
@@ -77,10 +108,8 @@ class DetailRating(generics.RetrieveUpdateDestroyAPIView):
 
 class RatingCount(APIView):
     """RatingCount - class for view likes analistic"""
-    # authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, ]
     queryset = models.Rating.objects.all()
-    # renderer_classes = (renderers.JSONRenderer,)
 
     def get(self, request, format=None):
         if 'date' in request.query_params:
@@ -112,11 +141,9 @@ class RatingCount(APIView):
 
 class UserActivity(APIView):
     """UserActivity - class for view user activity"""
-    # authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated, ]
     parser_classes = (parsers.JSONParser,)
     serializer_class = serializers.UserActivitySerializer
-    # renderer_classes = (renderers.JSONRenderer,)
 
     @staticmethod
     def get(self, request, format=None):

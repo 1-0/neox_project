@@ -106,7 +106,26 @@ def add_post(f_username, f_password, title, content):
         'title': title,
         'content': content,
     })
-    r = server_request(url=config.ENTER_POINT + r'add_post/',
+    r = server_request(url=config.ENTER_POINT + r'post_data/',
+                       data=data,
+                       headers={
+                           'content-type': 'application/json',
+                           'Authorization': 'Bearer %s' % (token['tokens']['access'],),
+                       },
+                       )
+    # user_logout(token)
+    res['add_post'] = r.text
+    return res
+
+
+def add_rating(f_username, f_password, post_id, post_like):
+    res = {}
+    token = user_jwt_login(f_username, f_password)
+    data = json.dumps({
+        'post_id': post_like,
+        'like': post_like,
+    })
+    r = server_request(url=config.ENTER_POINT + r'post_data/',
                        data=data,
                        headers={
                            'content-type': 'application/json',
@@ -165,7 +184,7 @@ def main():
     res = '''
 FAKE_USERS += ''' + str(FAKE_USERS)
 
-    with io.open('bot_log.py', 'a+', encoding="utf-8") as log:
+    with io.open(config.BOT_LOG_FILE, 'a+', encoding="utf-8") as log:
         log.write(res)
 
     return {

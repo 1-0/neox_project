@@ -5,4 +5,5 @@ MAX_LIKES_PER_USER = 2
 ADMIN_USERNAME = "a10"
 ADMIN_EMAIL = "1_0@usa.com"
 ADMIN_PASSWORD = "1111111111q"
-ENTER_POINT = r'''http://127.0.0.1:8000/api/'''
+ENTER_POINT = r'http://127.0.0.1:8000/api/'
+BOT_LOG_FILE = r'bot_log.py'
