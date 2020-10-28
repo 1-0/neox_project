@@ -23,7 +23,7 @@ Object of this task is to create a simple REST API. You can use one framework fr
 - `python manage.py createsuperuser`
 - set params in bot config file `utils\bot\config.py`:
 
-`
+```python
 NUMBER_OF_USERS = 2
 NUMBER_OF_CONNECTION_RETRY = 5
 MAX_POSTS_PER_USER = 2
@@ -33,7 +33,7 @@ ADMIN_EMAIL = "1_0@usa.com"
 ADMIN_PASSWORD = "1111111111q"
 ENTER_POINT = r'http://127.0.0.1:8000/api/'
 BOT_LOG_FILE = r'bot_log.py'
-`
+```
 
 ## 3. Run
 
