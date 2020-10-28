@@ -92,11 +92,18 @@ class RatingData(APIView):
         return Response({'r': str(r)})
 
 
-class RatingList(generics.ListCreateAPIView):
-    # authentication_classes = [authentication.TokenAuthentication]
-    queryset = models.Rating.objects.all()
-    serializer_class = serializers.RatingSerializer
+class RatingList(APIView):
     permission_classes = [permissions.IsAuthenticated, ]
+
+    @staticmethod
+    def get(request, format=None):
+        ratings = [{
+            'id': r.id,
+            'user_id': r.user_id,
+            'post_id': r.post_id,
+            'like': r.like
+        } for r in models.Rating.objects.all()]
+        return Response(ratings)
 
 
 class DetailRating(generics.RetrieveUpdateDestroyAPIView):

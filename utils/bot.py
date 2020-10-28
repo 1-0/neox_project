@@ -2,6 +2,7 @@
 
 import requests
 import json
+import random
 import io
 from faker import Faker
 from bot import config
@@ -37,16 +38,23 @@ def fake_user():
     }
 
 
-def server_request(url, data, headers):
+def server_request(url, data, headers, r_type="post"):
     i = 0
     res = None
     while i < config.NUMBER_OF_CONNECTION_RETRY:
         try:
-            res = requests.post(
-                url=url,
-                data=data,
-                headers=headers,
-            )
+            if r_type=="post":
+                res = requests.post(
+                    url=url,
+                    data=data,
+                    headers=headers,
+                )
+            else:
+                res = requests.get(
+                    url=url,
+                    data=data,
+                    headers=headers,
+                )
             return res
         except:
             i += 1
@@ -118,21 +126,21 @@ def add_post(f_username, f_password, title, content):
     return res
 
 
-def add_rating(f_username, f_password, post_id, post_like):
+def add_rating(f_username, f_password, post_id):
     res = {}
     token = user_jwt_login(f_username, f_password)
+    post_like = random.choice(['True', 'False'])
     data = json.dumps({
-        'post_id': post_like,
+        'post_id': post_id,
         'like': post_like,
     })
-    r = server_request(url=config.ENTER_POINT + r'post_data/',
+    r = server_request(url=config.ENTER_POINT + r'rating_data/',
                        data=data,
                        headers={
                            'content-type': 'application/json',
                            'Authorization': 'Bearer %s' % (token['tokens']['access'],),
                        },
                        )
-    # user_logout(token)
     res['add_post'] = r.text
     return res
 
@@ -175,12 +183,49 @@ def add_posts(faker):
     return posts
 
 
+def get_posts_id(faker):
+    f_username = faker['username']
+    f_password = faker['password']
+    token = user_jwt_login(f_username, f_password)
+    r = server_request(url=config.ENTER_POINT + r'posts/',
+                       data=None,
+                       headers={
+                           'content-type': 'application/json',
+                           'Authorization': 'Bearer %s' % (token['tokens']['access'],),
+                       },
+                       r_type='get',
+                       )
+    r_content = json.loads(r.content)
+    ids = []
+    for i in r_content:
+        ids.append(i['id'])
+    return ids
+
+
+def add_ratings(faker):
+    ratings = []
+    posts = get_posts_id(faker)
+    range_len = config.MAX_LIKES_PER_USER if config.MAX_LIKES_PER_USER <= len(posts) else len(posts)
+    for i in range(range_len):
+        post_id = random.choice(posts)
+        posts.remove(post_id)
+        ar = add_rating(
+            f_username=faker['username'],
+            f_password=faker['password'],
+            post_id=post_id,
+        )
+        ratings.append(ar)
+    return ratings
+
+
 def main():
     for i in range(config.NUMBER_OF_USERS):
         f = fake_user()
         f['add_user'] = add_user(f)
-        f['add_data'] = [add_posts(faker=f), ]
+        f['add_posts'] = add_posts(faker=f)
         FAKE_USERS.append(f)
+    for f in FAKE_USERS:
+        f['add_ratings'] = add_ratings(faker=f)
     res = '''
 FAKE_USERS += ''' + str(FAKE_USERS)
 
